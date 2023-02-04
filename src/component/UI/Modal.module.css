@@ -1,10 +1,12 @@
 .modalObject {
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
+    position: fixed;
+    bottom: 0;
+    left: 0;
 }
 
 .overlay {
@@ -13,18 +15,21 @@
     background-color: rgb(240, 234, 234);
     opacity: 0.7;
     z-index: 50;
-    position: absolute;
+    position: fixed;
+    left: 0;
+    bottom: 0;
 }
 
 .modal {
     width: 15rem;
     height: auto;
-    background-color: antiquewhite;
+    background-color: rgb(135, 184, 247);
     border: none;
     border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-inline: 1.3rem;
     z-index: 90;
 }
 

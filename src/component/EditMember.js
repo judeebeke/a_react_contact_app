@@ -3,66 +3,67 @@ import Input from "./UI/Input";
 import Button from "./UI/Button";
 import CartContext from "../store/cart-context";
 
+const EditMember = (props) => {
+    const {homeHandle} = useContext(CartContext);
 
-const AddMemberForm = (props) => {
-  const {addMember, homeHandle} = useContext(CartContext);
+    // console.log(props.firstname, props.lastname,  props.age)
 
-  const [inputFormState, setInputFormState] = useState({
-      firstName: "",
-      lastName: "",
-      witnessTitle: "",
-      age: "",
-      info: ""
-    })
-    const [errorMessage, setErrorMessage] = useState("")
-
-    const formInputsHandler = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-
-        if(name === "firstName") {
-          setErrorMessage("")
-        } else if (name === "lastName") {
-          setErrorMessage("")
-        } else if (name === "witnessTitle") {
-          setErrorMessage("")
-        } else {
-          setErrorMessage("")
-        }
-
-          setInputFormState(prev => {
-            return(
-                {...prev, [name]: value}
-            )
-        })
-
-      }
+    const [inputFormState, setInputFormState] = useState({
+        firstName: props.firstname,
+        lastName: props.lastname,
+        witnessTitle: props.privelege,
+        age: props.age,
+        info: props.info
+      })
       
-      const formSubmitHandler = (event) => {
-        event.preventDefault();
-
-        // addMember({...inputFormState, id: Math.random().toFixed(3)})
-
-        if(inputFormState.firstName === "") {
-          return setErrorMessage("Please Enter First Name");
-        } else if(inputFormState.lastName === "") {
-          // setErrorMessage("")
-          return setErrorMessage("Please enter LastName")
-        } else if(inputFormState.witnessTitle === "") {
-          return setErrorMessage("Please enter Title")
-        } else if(inputFormState.age === "") {
-          return setErrorMessage("Please enter Age")
-        } else {
-          let getData = [{...inputFormState, id: Math.random().toFixed(3)}]
-          addMember(getData)
-          props.onShow()
+      const [errorMessage, setErrorMessage] = useState("")
+  
+      const formInputsHandler = (event) => {
+          const name = event.target.name;
+          const value = event.target.value;
+  
+          if(name === "firstName") {
+            setErrorMessage("")
+          } else if (name === "lastName") {
+            setErrorMessage("")
+          } else if (name === "witnessTitle") {
+            setErrorMessage("")
+          } else {
+            setErrorMessage("")
+          }
+  
+            setInputFormState(prev => {
+              return(
+                  {...prev, [name]: value}
+              )
+          })
+  
         }
-
-        homeHandle()
-      }
-
+        
+        const formSubmitHandler = (event) => {
+          event.preventDefault();
+  
+          // addMember({...inputFormState, id: Math.random().toFixed(3)})
+  
+          if(inputFormState.firstName === "") {
+            return setErrorMessage("Please Enter First Name");
+          } else if(inputFormState.lastName === "") {
+            // setErrorMessage("")
+            return setErrorMessage("Please enter LastName")
+          } else if(inputFormState.witnessTitle === "") {
+            return setErrorMessage("Please enter Title")
+          } else if(inputFormState.age === "") {
+            return setErrorMessage("Please enter Age")
+          } else {
+            let getData = [{...inputFormState}]
+            
+            props.onManage(getData)
+          }
+  
+          homeHandle()
+        }
   return (
-    <form className="flex justify-center flex-col items-center sm:grid sm:gap-2 sm:grid-cols-2 sm:py-5 sm:space-y-2">
+      <form className="flex justify-center flex-col items-center sm:grid sm:gap-2 sm:grid-cols-2 sm:py-5 sm:space-y-2">
       <label htmlFor="firstname" className="font-bold mt-5 sm:mt-0">
         First Name
       </label>
@@ -136,15 +137,15 @@ const AddMemberForm = (props) => {
          <p className="font-bold text-sm mt-3">{errorMessage}</p>
 
       <div className="flex flex-row space-x-12 my-5 sm:my-0">
-        <Button type="button" onShow={props.onShow} bgColor="bg-gray-300">
+        <Button type="button" customStyle="text-2xl" onShow={props.onShow} bgColor="bg-gray-300">
           Clear
         </Button>
-        <Button type="submit" onShow={formSubmitHandler} bgColor="bg-green-500">
-          Add
+        <Button type="submit" customStyle="text-2xl" onShow={formSubmitHandler} bgColor="bg-green-500">
+          Edit
         </Button>
       </div>
     </form>
-  );
-};
+  )
+}
 
-export default AddMemberForm;
+export default EditMember
