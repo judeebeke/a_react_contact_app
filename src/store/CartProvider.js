@@ -1,116 +1,57 @@
-import {useReducer, useEffect, useState} from 'react';
-// import firestore from '../component/config/firebase';
+import {useReducer, useEffect, useState, useCallback} from 'react';
 
 import CartContext from './cart-context';
-
-const defualtMemberState = []
-
-const MemberReducer = (state, action) => {
-    
-    
-    if(action.type === 'ADD') {
-        let checkStorage = JSON.parse(localStorage.getItem('jwmembers')) || []
-        const newMembers = checkStorage.concat(action.member)
-
-       const newMembersState = newMembers
-
-        return newMembersState;
-    }
-
-    if(action.type === 'REMOVE') {
-        let checkIdsStorage = JSON.parse(localStorage.getItem('jwids')) || []
-        for (let id of checkIdsStorage) {
-            let checkMemberStorage = JSON.parse(localStorage.getItem('jwmembers')) || []
-            let notDeletedMember = checkMemberStorage.filter((item) => {
-                return item.id !== id;
-            });
-            localStorage.setItem("jwmembers", JSON.stringify(notDeletedMember));
-    }
-
-   
-    checkIdsStorage = [];
-
-    localStorage.setItem("jwids", JSON.stringify(checkIdsStorage));
-
-    let updatedMembers = JSON.parse(localStorage.getItem('jwmembers'));
-
-    return updatedMembers;
-    }
-
-    if(action.type === 'EDIT') {
-        let checkStorage = JSON.parse(localStorage.getItem('jwmembers')) || []
-
-        console.log(checkStorage)
-
-        const findMember = checkStorage.findIndex(item => item.id === action.id);
-        
-        console.log(findMember)
-
-        checkStorage[findMember] = {...action.memberInfo[0], id: action.id}
-
-       const newMembersState = checkStorage;
-
-       localStorage.setItem("jwmembers", JSON.stringify(checkStorage));
-
-        return newMembersState;
-    }
-
-    return state;
-}
 
 const defualtMemberFilterState = []
 
 const MemberFilterReducer = (state, action) => {
 
-
     if(action.type === 'FILTER') {
-    const checkStorage = JSON.parse(localStorage.getItem('jwmembers')) || []
-
         let newFilterState = [];
         
        switch (action.search) {
             case "18":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                      return Number(item.age) <= 18;
                     })
               break;
             case "19":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return Number(item.age) >= 19 && Number(item.age) < 31
                 })
               break;
             case "31":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return Number(item.age) >= 31 && Number(item.age) < 46
                 })
               break;
             case "46":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return Number(item.age) >= 46 && Number(item.age) < 60
                 })
               break;
             case "60":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return Number(item.age) >= 60 && Number(item.age) > 60
                 })
               break;
             case "Elder":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return item.witnessTitle === action.search
                 })
               break;
             case "Ministerial Servant":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return item.witnessTitle === action.search
                 })
               break
             case "Auxillary Pioneer":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return item.witnessTitle === action.search
                 })
               break
             case "Regular Pioneer":
-                newFilterState = checkStorage.filter(item => {
+                newFilterState = action.allMembers.filter(item => {
                     return item.witnessTitle === action.search
                 })
               break
@@ -137,37 +78,165 @@ const MemberFilterReducer = (state, action) => {
 
 
 const CartProvider = (props) => {
-    const [memberState, memberActionDispatcher] = useReducer(MemberReducer, defualtMemberState);
     const [memberFilterState, memberFilterActionDispatcher] = useReducer(MemberFilterReducer, defualtMemberFilterState);
     const [deleteIdsStore, setDeleteIdsStore] = useState(0)
     const [showCheck, setShowCheck] = useState(false)
+    const [members, setMembers] = useState([])
+    const [error, setError] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
+    
+    const fetchMembersHandler = useCallback(async () => {
+        setIsLoading(true)
+        setError(null)
+        try{
+            const responseData = await fetch('https://web-app-c863a-default-rtdb.firebaseio.com/members.json');
 
-    const addItemHandler = (item) => {
-        memberActionDispatcher({type: 'ADD', member: item})
+            if(!responseData.ok) {
+                throw new Error();
+            }
+            const realData = await responseData.json();
+
+            let transformedData = []
+
+            for (let key of Object.keys(realData)) {
+                transformedData.push({
+                    id: key,
+                    firstName: realData[key].firstName,
+                    lastName: realData[key].lastName,
+                    witnessTitle: realData[key].witnessTitle,
+                    age: realData[key].age,
+                    info: realData[key].info
+                })
+        }
+
+        setMembers(transformedData)
+        setIsLoading(false)
+        setError(null)
+        } catch(err){
+            if(err) {
+                setError('Something went wrong!')
+                setIsLoading(false)
+            }
+        }
+    }, [])
+
+    const addItemHandler = async (item) => {
+        setIsLoading(true)
+        setError(null)
+
+         try{
+            const response = await fetch('https://web-app-c863a-default-rtdb.firebaseio.com/members.json', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+                },
+            body:  JSON.stringify(item),
+        })
+
+        if(!response.ok) {
+            throw new Error()
+        }
+
+        const data = await response.json()
+
+        if(data !== null) {
+            fetchMembersHandler()
+        }
+
         setShowCheck(false)
+    } catch(error) {
+        setError('Error: Failed to add new member!')
+        setIsLoading(false)
+    }
     }
 
-    const removeItemHandler = () => {
-        memberActionDispatcher({type: 'REMOVE'})
+    const removeItemHandler = async () => {
+        let checkIdsStorage = JSON.parse(localStorage.getItem('jwids')) || []
+        isLoading(true)
 
+            for (let id of checkIdsStorage){
+            try{
+                const response = await fetch(`https://web-app-c863a-default-rtdb.firebaseio.com/members/${id}.json`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                    },
+            })
+
+            if(!response.ok) {
+                throw new Error()
+            }
+
+            setShowCheck(false)
+        } catch(error) {
+            setError('Error: Failed to delete member!')
+        }
+    }
+
+        fetchMembersHandler()
         getIdsStoreHandler()
-        setDeleteIdsStore(0)
+
+        let clearArray = []
+        localStorage.setItem("jwids", JSON.stringify(clearArray));
     }
 
-    const editItemHandler = (member, id) => {
-        memberActionDispatcher({type: 'EDIT', memberInfo: member, id: id})
+    const editItemHandler = async (member, id) => {
+        // const findMember = members.findIndex(item => item.id === id);
+        let edittedMember = {...member[0], id}
+        setIsLoading(true)
+
+        try{
+            const response = await fetch(`https://web-app-c863a-default-rtdb.firebaseio.com/members/${id}.json`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+                },
+            body:  JSON.stringify(edittedMember),
+        })
+
+        if(!response.ok) {
+            throw new Error()
+        }
+
+        const data = await response.json()
+
+        if(data !== null) {
+            fetchMembersHandler()
+        }
+
+        setShowCheck(false)
+    } catch(error) {
+        setError('Error: Failed to edit member!')
+    }
+        
     }
 
     const filterItemHandler = (search) => {
-        memberFilterActionDispatcher({type: 'FILTER', search: search})
+        setIsLoading(true)
+
+        if(search === "nil") {
+           return homeHandler();
+        }
+        
+        setTimeout(() => {
+            setIsLoading(false)
+            memberFilterActionDispatcher({type: 'FILTER', search: search, allMembers: members})
+        }, 1000)
     }
 
     const homeHandler = () => {
+        setIsLoading(true)
+
+        setTimeout(() => setIsLoading(false), 1000)
+
         memberFilterActionDispatcher({type: 'HOME'})
+
+        setShowCheck(false)
     }
 
     const getIdsStoreHandler = () => {
         let checkIdsStore = JSON.parse(localStorage.getItem('jwids')) || []
+
         if(checkIdsStore.length === 0 || checkIdsStore.length === undefined) {
             setDeleteIdsStore(0)
         } else {
@@ -180,8 +249,8 @@ const CartProvider = (props) => {
         setShowCheck(prev => !prev)
     }
 
-    const memberContext = {
-        members: memberState,
+    const memberContext =  {
+        members: members,
         filterMembers: memberFilterState,
         showCheckbox: showCheck,
         idsStore: deleteIdsStore,
@@ -192,34 +261,14 @@ const CartProvider = (props) => {
         filterMember: filterItemHandler,
         homeHandle: homeHandler,
         getIdsStore: getIdsStoreHandler,
-    }
+        errorHandle: error,
+        loadingHandle: isLoading
+    };
 
-
-    // const getMembersFromDB = () => {
-    //     console.log(firestore)
-    //     firestore.collection('congregation_Data').get().then((snapshot) => {
-    //         console.log(snapshot.docs)
-    //         // snapshot.docs.forEach(doc => {
-    //         // console.log(doc.data())
-    //         // })
-    //     })
-    // }
 
     useEffect(() => {
-        if(memberState.length > 0) {
-            localStorage.setItem("jwmembers", JSON.stringify(memberState))
-        } else {
-            setShowCheck(false)
-        }
-        
-    }, [memberState])
-
-    // useEffect(() => {
-    //     if(memberFilterState.length > 0) {
-    //         localStorage.setItem("filtermembers", JSON.stringify(memberFilterState))
-    //     }
-        
-    // }, [memberFilterState])
+        fetchMembersHandler()
+    }, [fetchMembersHandler])
 
     return (
         <CartContext.Provider value={memberContext}>

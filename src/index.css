@@ -20,3 +20,11 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+.fa-spinner {
+  color: rgb(8, 99, 218)
+}
+
+
+
+

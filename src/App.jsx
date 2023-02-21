@@ -28,7 +28,7 @@ const App = () => {
         <JwOveseer onShow={showModalHandler} />
         <IndexPage />
       </main>
-      <Footer />
+      {/* <Footer /> */}
       {showModal && (
         <Modal onShow={showModalHandler}>
           <AddMemberForm onShow={showModalHandler} />

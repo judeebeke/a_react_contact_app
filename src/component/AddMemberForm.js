@@ -44,16 +44,16 @@ const AddMemberForm = (props) => {
         // addMember({...inputFormState, id: Math.random().toFixed(3)})
 
         if(inputFormState.firstName === "") {
-          return setErrorMessage("Please Enter First Name");
+           setErrorMessage("Please Enter First Name");
         } else if(inputFormState.lastName === "") {
           // setErrorMessage("")
-          return setErrorMessage("Please enter LastName")
+           setErrorMessage("Please enter LastName")
         } else if(inputFormState.witnessTitle === "") {
-          return setErrorMessage("Please enter Title")
+           setErrorMessage("Please enter Title")
         } else if(inputFormState.age === "") {
-          return setErrorMessage("Please enter Age")
+           setErrorMessage("Please enter Age")
         } else {
-          let getData = [{...inputFormState, id: Math.random().toFixed(3)}]
+          let getData = {...inputFormState};
           addMember(getData)
           props.onShow()
         }

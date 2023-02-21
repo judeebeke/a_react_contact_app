@@ -49,12 +49,18 @@ const MembersPage = (props) => {
             })}
         </ul>
 
-        {props.existingData.length === 0 && members.length < 1 ? (
+        {props.existingData.length === 0 && members.length === 0 ? (
           <h2 className="flex justify-center w-6/12  text-center items-center font-semibold text-xl bg-gray-200 mt-10 rounded">
             No Member Added
           </h2>
         ) : (
           ""
+        )}
+
+      {typeof members === String && (
+          <h2 className="flex justify-center w-6/12  text-center items-center font-semibold text-xl bg-red-100 mt-10 rounded">
+            {members}
+          </h2>
         )}
       </section>
     </div>
