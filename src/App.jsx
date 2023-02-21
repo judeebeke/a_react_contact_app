@@ -5,9 +5,7 @@ import AddMemberForm from "./component/AddMemberForm";
 import Nav from "./component/Nav";
 import IndexPage from "./component/Pages/IndexPage";
 import ContextProvider from "./store/CartProvider";
-import Footer from './component/Footer';
-// import Loader from './component/UI/Loader';
-// import { centerItems } from './component/Style';
+
 
 const App = () => {
   const [showModal, setShowModal] = useState(false);
@@ -28,13 +26,11 @@ const App = () => {
         <JwOveseer onShow={showModalHandler} />
         <IndexPage />
       </main>
-      {/* <Footer /> */}
       {showModal && (
         <Modal onShow={showModalHandler}>
           <AddMemberForm onShow={showModalHandler} />
         </Modal>
       )}
-      {/* <Loader /> */}
     </ContextProvider>
   );
 };
