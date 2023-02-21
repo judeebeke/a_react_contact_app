@@ -152,7 +152,7 @@ const CartProvider = (props) => {
 
     const removeItemHandler = async () => {
         let checkIdsStorage = JSON.parse(localStorage.getItem('jwids')) || []
-        isLoading(true)
+        setIsLoading(true)
 
             for (let id of checkIdsStorage){
             try{
