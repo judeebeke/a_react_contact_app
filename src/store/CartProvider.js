@@ -96,19 +96,25 @@ const CartProvider = (props) => {
             }
             const realData = await responseData.json();
 
+            console.log(realData)
             let transformedData = []
 
-            for (let key of Object.keys(realData)) {
-                transformedData.push({
-                    id: key,
-                    firstName: realData[key].firstName,
-                    lastName: realData[key].lastName,
-                    witnessTitle: realData[key].witnessTitle,
-                    age: realData[key].age,
-                    info: realData[key].info
-                })
-        }
-
+            if(realData === null) {
+                setIsLoading(false)
+                return setError('No member added!')
+            } else {
+                for (let key of Object.keys(realData)) {
+                    transformedData.push({
+                        id: key,
+                        firstName: realData[key].firstName,
+                        lastName: realData[key].lastName,
+                        witnessTitle: realData[key].witnessTitle,
+                        age: realData[key].age,
+                        info: realData[key].info
+                    })
+            }
+            }
+            
         setMembers(transformedData)
         setIsLoading(false)
         setError(null)
