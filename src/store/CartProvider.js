@@ -96,7 +96,6 @@ const CartProvider = (props) => {
             }
             const realData = await responseData.json();
 
-            console.log(realData)
             let transformedData = []
 
             if(realData === null) {
